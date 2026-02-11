@@ -124,4 +124,15 @@ npm run dev   # Starts client on port 3000 (or 3001/3005)
 -   **XSS Protection**: `sanitize-html` is used on the server-side rendering of blog posts to strip malicious scripts from the content before sending it to the client.
 
 ## Deployed Link
-*(Placeholder: Add your Vercel/Render deployment link here)*
+
+🌐 Frontend (Vercel)
+
+https://next-js-blog-website-buxb.vercel.app
+
+🔐 Admin Panel
+
+https://next-js-blog-website-buxb.vercel.app/admin
+
+🖥 Backend API (Render)
+
+https://next-js-blog-website.onrender.com
