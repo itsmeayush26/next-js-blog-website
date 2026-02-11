@@ -1,15 +1,30 @@
 export default async function sitemap() {
-    const baseUrl = 'http://localhost:3000';
+    // Use environment variable or fallback to localhost for development
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://your-app.vercel.app';
 
-    // Fetch all published blog posts
-    const posts = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs?limit=1000`).then((res) => res.json());
+    let blogUrls = [];
 
-    const blogUrls = (posts.posts || []).map((post) => ({
-        url: `${baseUrl}/blog/${post.slug}`,
-        lastModified: new Date(post.updatedAt),
-        changeFrequency: 'weekly',
-        priority: 0.8,
-    }));
+    try {
+        // Fetch all published blog posts with error handling
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs?limit=1000`, {
+            next: { revalidate: 3600 } // Cache for 1 hour
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            blogUrls = (data.posts || []).map((post) => ({
+                url: `${baseUrl}/blog/${post.slug}`,
+                lastModified: new Date(post.updatedAt),
+                changeFrequency: 'weekly',
+                priority: 0.8,
+            }));
+        } else {
+            console.warn('Failed to fetch blog posts for sitemap, using static pages only');
+        }
+    } catch (error) {
+        console.error('Error generating sitemap:', error);
+        // Continue with static pages even if blog fetch fails
+    }
 
     return [
         {
@@ -33,3 +48,4 @@ export default async function sitemap() {
         ...blogUrls,
     ];
 }
+
