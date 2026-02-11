@@ -20,10 +20,20 @@ const app = express();
 app.use(express.json());
 
 // Enable CORS
-app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    credentials: true
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (origin.includes("localhost") || origin.includes("vercel.app")) {
+        return callback(null, true);
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 
 // Mount routers
 app.use('/api/hero', heroRoutes);
