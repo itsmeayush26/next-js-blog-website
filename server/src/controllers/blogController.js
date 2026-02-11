@@ -1,4 +1,5 @@
 const BlogPost = require('../models/BlogPost');
+const slugify = require('slugify');
 
 // @desc    Get all published blog posts
 // @route   GET /api/blogs
@@ -43,8 +44,30 @@ const getBlogPostBySlug = async (req, res) => {
 // @desc    Create a blog post
 // @route   POST /api/blogs
 // @access  Private (Admin)
+
+
+// Helper to create unique slug
+const createUniqueSlug = async (title, model) => {
+    let slug = slugify(title, { lower: true, strict: true });
+    let uniqueSlug = slug;
+    let counter = 1;
+
+    while (await model.findOne({ slug: uniqueSlug })) {
+        uniqueSlug = `${slug}-${counter}`;
+        counter++;
+    }
+    return uniqueSlug;
+};
+
+// @desc    Create a blog post
+// @route   POST /api/blogs
+// @access  Private (Admin)
 const createBlogPost = async (req, res) => {
     try {
+        if (!req.body.slug && req.body.title) {
+            req.body.slug = await createUniqueSlug(req.body.title, BlogPost);
+        }
+
         if (req.file) {
             req.body.featuredImage = req.file.path;
         }
